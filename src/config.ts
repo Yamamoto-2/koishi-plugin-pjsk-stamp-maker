@@ -17,13 +17,13 @@ export const defaultStyle: object = {
         position: 'top',
         rotate: 0,
         curve: true,
-        textAlign: 'right',
+        textAlign: 'center',
         textOrientation: 'horizontal',
-        textScreenShare: 0.5
+        textScreenShare: 0.4
     },
     2: {
         position: 'top',
-        rotate: 0,
+        rotate: 5,
         curve: false,
         textAlign: 'center',
         textOrientation: 'horizontal',
@@ -31,9 +31,9 @@ export const defaultStyle: object = {
     },
     3: {
         position: 'top',
-        rotate: 5,
+        rotate: 0,
         curve: false,
-        textAlign: 'left',
+        textAlign: 'center',
         textOrientation: 'horizontal',
         textScreenShare: 0.4
     },
@@ -54,14 +54,6 @@ export const defaultStyle: object = {
         textScreenShare: 0.4
     },
     6: {
-        position: 'left',
-        rotate: 5,
-        curve: false,
-        textAlign: 'center',
-        textOrientation: 'vertical',
-        textScreenShare: 0.4
-    },
-    7: {
         position: 'right',
         rotate: 0,
         curve: false,
@@ -69,7 +61,31 @@ export const defaultStyle: object = {
         textOrientation: 'vertical',
         textScreenShare: 0.4
     },
+    7: {
+        position: 'right',
+        rotate: -5,
+        curve: false,
+        textAlign: 'center',
+        textOrientation: 'vertical',
+        textScreenShare: 0.4
+    },
     8: {
+        position: 'left',
+        rotate: 5,
+        curve: false,
+        textAlign: 'center',
+        textOrientation: 'vertical',
+        textScreenShare: 0.4
+    },
+    9: {
+        position: 'left',
+        rotate: 0,
+        curve: false,
+        textAlign: 'center',
+        textOrientation: 'vertical',
+        textScreenShare: 0.4
+    },
+    10: {
         position: 'left',
         rotate: -5,
         curve: false,
