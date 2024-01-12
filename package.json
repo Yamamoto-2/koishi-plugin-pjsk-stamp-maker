@@ -1,7 +1,13 @@
 {
-  "name": "koishi-plugin-pjsk-stickers-maker",
-  "description": "[pjsk](https://st.ayaka.one/) 表情包生成器，可自行添加额外表情包，例如：原神表情包。",
-  "version": "1.1.6",
+  "name": "koishi-plugin-pjsk-stamp-maker",
+  "description": "[pjsk](https://st.ayaka.one/) 表情包生成器\n(Project Sekai: Colorful Stage) (世界计画 缤纷舞台)",
+  "version": "0.0.1",
+  "contributors": [
+    "Yamamoto-2 <1810972564qq@gmail.com>",
+    "starnightlodging <1843634955@qq.com>",
+    "小微 <1665757132@qq.com>",
+    "Nawyjx <3373167460@qq.com>"
+  ],
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -17,11 +23,11 @@
     }
   },
   "license": "MIT",
-  "author": "Nawyjx <3373167460@qq.com>",
-  "homepage": "https://www.npmjs.com/package/koishi-plugin-pjsk-stickers-maker?activeTab=readme",
+  "author": "Yamamoto-2 <1810972564qq@gmail.com>",
+  "homepage": "https://www.npmjs.com/package/koishi-plugin-pjsk-stamp-maker?activeTab=readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/araea/koishi-plugin-pjsk-stickers-maker.git"
+    "url": "git+https://github.com/araea/koishi-plugin-pjsk-stamp-maker.git"
   },
   "keywords": [
     "chatbot",
@@ -29,11 +35,11 @@
     "plugin",
     "pjsk",
     "表情包",
-    "Project Sekai Stickers",
+    "Project Sekai stamp",
     "啤酒烧烤",
     "初音未来",
     "生成器",
-    "Stickers"
+    "stamp"
   ],
   "peerDependencies": {
     "koishi": "^4.16.2"
