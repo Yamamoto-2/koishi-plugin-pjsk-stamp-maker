@@ -7,18 +7,103 @@ export interface drawTextOptions extends Style {
     color: string,
 }
 
-export async function drawBaseImageList(context: Context, baseImages: baseImage[]) {
-    const baseImageList = baseImages.map((baseImage, index) => {
-        return `${index} ${baseImage.name}`
-    })
-    return baseImageList.join('\n')
+export async function drawBaseImageList(koishiContext: Context, baseImages: baseImage[]) {
+    async function drawBaseImageInList(BaseImageId: number) {
+        const canvasWidth = 100;
+        const canvasHeight = 150;
+        const canvas = await koishiContext.canvas.createCanvas(canvasWidth, canvasHeight);
+        const ctx = canvas.getContext('2d');
+        //获取底图
+        const stampBuffer = await draw(koishiContext, baseImages, '测试用文本\n测试用', BaseImageId);
+        const stampImage = (await koishiContext.canvas.loadImage(stampBuffer))
+        //宽度固定为100，高度自适应
+        const stampImageWidth = 100;
+        const stampImageHeight = stampImage.height / stampImage.width * stampImageWidth;
+        ctx.drawImage(stampImage, 0, 0, stampImage.width, stampImage.height, 0, 0, stampImageWidth, stampImageHeight);
+        //写底图ID再下方，50px字体
+        const baseImageIdText = `ID: ${BaseImageId}`;
+        ctx.font = `20px '荆南波波黑', 'Microsoft YaHei'`;
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#505050';
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 4;
+        ctx.textBaseline = 'bottom';
+        ctx.save();
+
+        const textWidth = ctx.measureText(baseImageIdText).width;
+        ctx.strokeText(baseImageIdText, (100 - textWidth) / 2, 150);
+        ctx.fillText(baseImageIdText, (100 - textWidth) / 2, 150);
+
+        //加一个宽度1像素的描边
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = '#505050';
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, 150);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(100, 0);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(100, 150);
+        ctx.lineTo(0, 150);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(100, 150);
+        ctx.lineTo(100, 0);
+        ctx.stroke();
+
+
+
+        
+        return canvas.toBuffer('image/png');
+    }
+    //每一种fileDir为一行，计算出每一行的宽度，然后根据宽度和高度绘制
+    let maxWidth = 0;
+    let tempWidth = 0;
+    let fileDirCount = 0;
+    for (let i = 0; i < baseImages.length; i++) {
+        if (baseImages[i].fileDir != baseImages[i - 1]?.fileDir && i != 0) {
+            fileDirCount++;
+            maxWidth = Math.max(maxWidth, tempWidth);
+            tempWidth = 0;
+        } else {
+            tempWidth += 100;
+        }
+    }
+
+    //绘制
+    const canvasWidth = maxWidth;
+    const canvasHeight = fileDirCount * 150;
+    const canvas = await koishiContext.canvas.createCanvas(canvasWidth, canvasHeight);
+    const ctx = canvas.getContext('2d');
+    let currentXCount = 0;
+    let currentYCount = 0;
+    for (let i = 0; i < baseImages.length; i++) {
+        const baseImageData = baseImages[i];
+        const stampBuffer = await drawBaseImageInList(i);
+        const stampImage = (await koishiContext.canvas.loadImage(stampBuffer))
+        //宽度固定为100，高度自适应
+        const stampImageWidth = 100;
+        const stampImageHeight = stampImage.height / stampImage.width * stampImageWidth;
+        if (baseImages[i].fileDir != baseImages[i - 1]?.fileDir && i != 0) {
+            currentXCount = 0;
+            currentYCount += 1;
+        }
+        const x = currentXCount * 100;
+        const y = currentYCount * 150;
+        ctx.drawImage(stampImage, 0, 0, stampImage.width, stampImage.height, x, y, stampImageWidth, stampImageHeight);
+        currentXCount += 1;
+    }
+    return canvas.toBuffer('image/png');
 }
 
 let baseImageCache: object = {}
-async function loadBaseImage(context: Context, baseImages: baseImage[], baseImageId: number) {
+async function loadBaseImageById(koishiContext: Context, baseImages: baseImage[], baseImageId: number) {
     if (!baseImageCache[baseImageId]) {
         const baseImageData = baseImages[baseImageId];
-        const img = (await context.canvas.loadImage(path.join(context.baseDir, 'data', 'pjsk', 'img', baseImageData.fileDir, baseImageData.fileName))) as any;
+        const img = (await koishiContext.canvas.loadImage(path.join(koishiContext.baseDir, 'data', 'pjsk', 'img', baseImageData.fileDir, baseImageData.fileName))) as any;
         baseImageCache[baseImageId] = img;
     }
     return baseImageCache[baseImageId];
@@ -29,7 +114,7 @@ export async function draw(context: Context, baseImages: baseImage[], inputText:
     // 随机选择表情包ID
     const baseImageData = baseImages[baseImageId];
 
-    const img = await loadBaseImage(context, baseImages, baseImageId);
+    const img = await loadBaseImageById(context, baseImages, baseImageId);
 
     const canvasWidth = img.width;
     const canvasHeight = img.height;
@@ -86,11 +171,11 @@ export async function draw(context: Context, baseImages: baseImage[], inputText:
             //旋转后不超出画面的向下平移，确定旋转后图形中点位置
             const centerX = canvasWidth / 2;
             if (drawTextOptions.position === 'top') {
-                const centerY = canvasWidth / 2 * Math.sin(radians)
+                const centerY = canvasWidth / 2 * Math.sin(radians) + drawHeight / 2
                 ctx.translate(centerX, centerY);
             }
             else {
-                const centerY = canvasHeight - canvasWidth / 2 * Math.sin(radians)
+                const centerY = canvasHeight - canvasWidth / 2 * Math.sin(radians) - drawHeight / 2
                 ctx.translate(centerX, centerY);
             }
             //旋转
@@ -122,14 +207,11 @@ export async function draw(context: Context, baseImages: baseImage[], inputText:
 
             //旋转后不超出画面的向下平移，确定旋转后图形中点位置
             const centerY = canvasHeight / 2;
-            if (drawTextOptions.position === 'left') {
-                const centerX = canvasHeight / 2 * Math.sin(radians)
-                ctx.translate(centerX, centerY);
-            }
-            else {
-                const centerX = canvasWidth - canvasHeight / 2 * Math.sin(radians)
-                ctx.translate(centerX, centerY);
-            }
+
+            const centerX = canvasHeight / 2 * Math.sin(radians) + drawWidth / 2
+            ctx.translate(centerX, centerY);
+
+
             //旋转
             ctx.rotate(radians);
             //确定绘制的起点
@@ -219,10 +301,9 @@ export async function drawTextWithoutCurve(koishiContext: Context,
         //从右向左
         let currentY = 0;
         let currentX = maxWidth;
-        ctx.textAlign = 'left';
+        ctx.textAlign = 'right';
         ctx.textBaseline = 'top';
         for (let line of lines) {
-            currentX -= fontSize * lineHeight;
             if (textAlign === 'center') {
                 //根据文字的长度，计算出文字的起点
                 currentY = (maxHeight - lineWidth - line.length * fontSize) / 2;
@@ -247,6 +328,7 @@ export async function drawTextWithoutCurve(koishiContext: Context,
                     currentY += fontSize; // 下一个字符的y坐标
                 }
             }
+            currentX -= fontSize * lineHeight;
         }
     }
     return canvas.toBuffer('image/png');

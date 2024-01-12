@@ -1,7 +1,7 @@
 import { Context, Schema, h, Logger, Random } from 'koishi';
 import { } from 'koishi-plugin-canvas';
-import { loadBaseImage } from './utils'
-import { draw } from './draw'
+import { baseImage, loadBaseImage } from './utils'
+import { draw, drawBaseImageList } from './draw'
 
 import fs from 'fs';
 import path from 'path';
@@ -32,24 +32,30 @@ declare module 'koishi' {
 
 export function apply(context: Context, config: Config) {
 
+  //拓展user表
   context.model.extend('user', {
     'pjskStampId': { type: 'integer', initial: -1 }
   })
 
-  //初始化
   const dependencyPjskDir = path.join(__dirname, '..', 'pjsk')
   const pluginDataDir = path.join(context.baseDir, 'data', 'pjsk')
-  // 将资源文件存到data目录下
-  fs.cp(dependencyPjskDir,
-    pluginDataDir,
-    { recursive: true, force: false },
-    (err) => {
-      if (err) {
-        logger.error('复制 pjsk 文件夹出错：' + err.message)
+  let baseImages: baseImage[] = []
+  //初始化
+  async function copyFile() {
+    // 将资源文件存到data目录下
+    fs.cp(dependencyPjskDir,
+      pluginDataDir,
+      { recursive: true, force: false },
+      (err) => {
+        if (err) {
+          logger.error('复制 pjsk 文件夹出错：' + err.message)
+        }
       }
-    });
-
-  const baseImages = loadBaseImage(path.join(pluginDataDir, 'baseImage.json'))
+    )
+  }
+  copyFile().then(() => {
+    baseImages = loadBaseImage(path.join(pluginDataDir, 'baseImage.json'))
+  })
 
   // 底图目录命令
   context.command('pjsk.baseImage [baseImageId:integer]', '切换表情包底图ID')
@@ -77,8 +83,6 @@ export function apply(context: Context, config: Config) {
       if (inputText.includes('http')) {
         return;
       }
-      //number是1到300的数字
-      const number = Random.int(52, 52)
       //将inputText的'_'替换为' '
       inputText = inputText.replace(/_/g, ' ')
 
@@ -92,8 +96,8 @@ export function apply(context: Context, config: Config) {
     });
 
   context.command('pjsk.baseImageList', '绘制表情包可用底图列表').action(async ({ session }) => {
-
-    await session.send(' ')
+    const buffer = await drawBaseImageList(context, baseImages);
+    await session.send(h.image(buffer, 'image/png'));
   }
 
   )
