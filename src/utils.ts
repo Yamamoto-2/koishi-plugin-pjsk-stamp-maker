@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-interface Config {
+export interface baseImage {
     id: number;
     color: string;
     fileName: string;
@@ -9,7 +9,7 @@ interface Config {
     defaultStyleId: number;
 }
 
-export function loadBaseImage(configPath: string): Config[] {
+export function loadBaseImage(configPath: string): baseImage[] {
     try {
         const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
         return config;
