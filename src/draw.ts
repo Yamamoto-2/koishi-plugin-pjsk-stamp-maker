@@ -1,19 +1,35 @@
 import { Context } from "koishi";
 import * as path from "path";
-import { loadBaseImage } from "./utils";
-import { Style, defaultStyle } from "./config";
+import { loadBaseImage, baseImage } from "./utils";
+import { Style, defaultStyle, } from "./config";
 
 export interface drawTextOptions extends Style {
     color: string,
 }
 
-export async function draw(context: Context, inputText: string, baseImageId: number) {
+export async function drawBaseImageList(context: Context, baseImages: baseImage[]) {
+    const baseImageList = baseImages.map((baseImage, index) => {
+        return `${index} ${baseImage.name}`
+    })
+    return baseImageList.join('\n')
+}
+
+let baseImageCache: object = {}
+async function loadBaseImage(context: Context, baseImages: baseImage[], baseImageId: number) {
+    if (!baseImageCache[baseImageId]) {
+        const baseImageData = baseImages[baseImageId];
+        const img = (await context.canvas.loadImage(path.join(context.baseDir, 'data', 'pjsk', 'img', baseImageData.fileDir, baseImageData.fileName))) as any;
+        baseImageCache[baseImageId] = img;
+    }
+    return baseImageCache[baseImageId];
+}
+
+export async function draw(context: Context, baseImages: baseImage[], inputText: string, baseImageId: number) {
     const pluginDataDir = path.join(context.baseDir, 'data', 'pjsk')
-    const baseImages = loadBaseImage(path.join(pluginDataDir, 'baseImage.json'))
     // 随机选择表情包ID
     const baseImageData = baseImages[baseImageId];
 
-    const img = (await context.canvas.loadImage(path.join(pluginDataDir, 'img', baseImageData.fileDir, baseImageData.fileName))) as any;
+    const img = await loadBaseImage(context, baseImages, baseImageId);
 
     const canvasWidth = img.width;
     const canvasHeight = img.height;
@@ -48,14 +64,18 @@ export async function draw(context: Context, inputText: string, baseImageId: num
 
         //确定缩放比例
         const scale = Math.min(canvasWidth / textCanvasWidth, canvasHeight / textCanvasHeight * drawTextOptions.textScreenShare);
+
+        const screenShareHeight = canvasHeight * drawTextOptions.textScreenShare;   //占用的高度
         //确定绘制的宽高
         const drawWidth = textCanvasWidth * scale;
         const drawHeight = textCanvasHeight * scale;
 
+        const mid = (screenShareHeight / 2 - drawHeight / 2)
+
         if (drawTextOptions.rotate === 0) {
             //确定绘制的起点
             const drawX = (canvasWidth - drawWidth) / 2;
-            const drawY = drawTextOptions.position === 'top' ? 0 : (canvasHeight - drawHeight);
+            const drawY = drawTextOptions.position === 'top' ? 0 + mid : (canvasHeight - drawHeight - mid);
             //绘制
             ctx.drawImage(textCanvas, drawX, drawY, drawWidth, drawHeight);
         }
@@ -65,25 +85,24 @@ export async function draw(context: Context, inputText: string, baseImageId: num
 
             //旋转后不超出画面的向下平移，确定旋转后图形中点位置
             const centerX = canvasWidth / 2;
-            if(drawTextOptions.position === 'top'){
+            if (drawTextOptions.position === 'top') {
                 const centerY = canvasWidth / 2 * Math.sin(radians)
                 ctx.translate(centerX, centerY);
             }
-            else{
+            else {
                 const centerY = canvasHeight - canvasWidth / 2 * Math.sin(radians)
                 ctx.translate(centerX, centerY);
             }
             //旋转
             ctx.rotate(radians);
             //确定绘制的起点
-            const drawX = -drawWidth / 2;
-            const drawY = drawTextOptions.position === 'top' ? 0 : -drawHeight;
+            ctx.translate(-drawWidth / 2, 0);
             //绘制
-            ctx.drawImage(textCanvas, drawX, drawY, drawWidth, drawHeight);
+            ctx.drawImage(textCanvas, 0, 0, drawWidth, drawHeight);
         }
 
     }
-    else if(drawTextOptions.position === 'left' || drawTextOptions.position === 'right'){
+    else if (drawTextOptions.position === 'left' || drawTextOptions.position === 'right') {
         //确定缩放比例
         const scale = Math.min(canvasWidth / textCanvasWidth * drawTextOptions.textScreenShare, canvasHeight / textCanvasHeight);
         //确定绘制的宽高
@@ -103,27 +122,25 @@ export async function draw(context: Context, inputText: string, baseImageId: num
 
             //旋转后不超出画面的向下平移，确定旋转后图形中点位置
             const centerY = canvasHeight / 2;
-            if(drawTextOptions.position === 'left'){
+            if (drawTextOptions.position === 'left') {
                 const centerX = canvasHeight / 2 * Math.sin(radians)
                 ctx.translate(centerX, centerY);
             }
-            else{
+            else {
                 const centerX = canvasWidth - canvasHeight / 2 * Math.sin(radians)
                 ctx.translate(centerX, centerY);
             }
             //旋转
             ctx.rotate(radians);
             //确定绘制的起点
-            const drawX = drawTextOptions.position === 'left' ? 0 : -drawWidth;
-            const drawY = -drawHeight / 2;
+            ctx.translate(0, -drawHeight / 2);
             //绘制
-            ctx.drawImage(textCanvas, drawX, drawY, drawWidth, drawHeight);
+            ctx.drawImage(textCanvas, 0, 0, drawWidth, drawHeight);
         }
     }
     const buffer = await canvas.toBuffer('image/png');
     return buffer;
 }
-
 
 export async function drawTextWithoutCurve(koishiContext: Context,
     text: string,
@@ -139,7 +156,7 @@ export async function drawTextWithoutCurve(koishiContext: Context,
     // tempCanvas 用于获取文本的宽度
     const tempCanvas = await koishiContext.canvas.createCanvas(1, 1);
     const tempCtx = tempCanvas.getContext('2d');
-    tempCtx.font = `${fontSize}px 'FOT-Yuruka Std UB', '上首方糖体', 'Microsoft YaHei'`;
+    tempCtx.font = `${fontSize}px '荆南波波黑', 'Microsoft YaHei'`;
 
     // 按行分割文本
     const lines = text.split('\n');
@@ -173,7 +190,7 @@ export async function drawTextWithoutCurve(koishiContext: Context,
     // 创建画布
     const canvas = await koishiContext.canvas.createCanvas(maxWidth, maxHeight);
     const ctx = canvas.getContext('2d');
-    ctx.font = `${fontSize}px 'FOT-Yuruka Std UB', '上首方糖体', 'Microsoft YaHei'`;
+    ctx.font = `${fontSize}px '荆南波波黑', 'Microsoft YaHei'`;
     ctx.textAlign = textAlign;
     ctx.fillStyle = color;
     ctx.strokeStyle = '#ffffff';
@@ -235,7 +252,6 @@ export async function drawTextWithoutCurve(koishiContext: Context,
     return canvas.toBuffer('image/png');
 }
 
-
 export async function drawTextWithCurve(koishiContext: Context, text: string, {
     color = '#1b1b1b',
     textAlign = 'center',
@@ -249,7 +265,7 @@ export async function drawTextWithCurve(koishiContext: Context, text: string, {
     // tempCanvas 用于获取文本的宽度
     const tempCanvas = await koishiContext.canvas.createCanvas(1, 1);
     const tempCtx = tempCanvas.getContext('2d');
-    tempCtx.font = `${fontSize}px 'FOT-Yuruka Std UB', '上首方糖体', 'Microsoft YaHei'`;
+    tempCtx.font = `${fontSize}px '荆南波波黑', 'Microsoft YaHei'`;
 
     // 按行分割文本
     const lines = text.split('\n');
@@ -274,11 +290,11 @@ export async function drawTextWithCurve(koishiContext: Context, text: string, {
     async function drawTextLine(line: string) {
         // 计算每一行画布的宽高
         const canvasWidth = chordLength + fontSize//加上一个字的宽度，防止文字被裁剪
-        const canvasHeight = perpendicularHeight + fontSize * lineHeight + fontSize;
+        const canvasHeight = perpendicularHeight + fontSize + fontSize;
 
         const canvas = await koishiContext.canvas.createCanvas(canvasWidth, canvasHeight);
         const ctx = canvas.getContext('2d');
-        ctx.font = `${fontSize}px 'FOT-Yuruka Std UB', '上首方糖体', 'Microsoft YaHei'`;
+        ctx.font = `${fontSize}px '荆南波波黑', 'Microsoft YaHei'`;
         ctx.fillStyle = color;
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = lineWidth;
@@ -326,7 +342,7 @@ export async function drawTextWithCurve(koishiContext: Context, text: string, {
 
     // 创建画布
     const canvasWidth = chordLength + fontSize//加上一个字的宽度，防止文字被裁剪
-    const canvasHeight = perpendicularHeight + fontSize * lines.length * lineHeight + 20;
+    const canvasHeight = perpendicularHeight + fontSize * lineHeight + 20;
     const canvas = await koishiContext.canvas.createCanvas(canvasWidth, canvasHeight);
     const ctx = canvas.getContext('2d');
     for (let i = 0; i < lines.length; i++) {
