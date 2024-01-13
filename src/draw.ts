@@ -235,7 +235,7 @@ export async function drawTextWithoutCurve(koishiContext: Context,
         textOrientation = 'horizontal'
     }: drawTextOptions): Promise<Buffer> {
     const fontSize = 100;
-    const lineHeight = 0.85;//行高
+    const lineHeight = 0.95;//行高
     const lineWidth = 20;//描边宽度
 
     // tempCanvas 用于获取文本的宽度
@@ -342,7 +342,7 @@ export async function drawTextWithCurve(koishiContext: Context, text: string, {
     textAlign = 'center',
 }: drawTextOptions): Promise<Buffer> {
     const fontSize = 100;
-    const lineHeight = 0.85;//行高
+    const lineHeight = 0.95;//行高
     const lineWidth = 20;//描边宽度
 
     const curveAngle = Math.PI / 4;//弧度
