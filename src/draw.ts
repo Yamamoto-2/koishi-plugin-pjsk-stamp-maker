@@ -18,7 +18,7 @@ export async function drawBaseImageList(koishiContext: Context, baseImages: base
         const stampImage = (await koishiContext.canvas.loadImage(stampBuffer))
         //宽度固定为100，高度自适应
         const stampImageWidth = 100;
-        const stampImageHeight = stampImage.height / stampImage.width * stampImageWidth;
+        const stampImageHeight = stampImage['height'] / stampImage['width'] * stampImageWidth;
         //画在距离顶部30px的位置
         ctx.drawImage(stampImage, 0, 30, stampImageWidth, stampImageHeight);
         //写底图ID再下方，50px字体
@@ -82,7 +82,7 @@ export async function drawBaseImageList(koishiContext: Context, baseImages: base
         const stampImage = (await koishiContext.canvas.loadImage(stampBuffer))
         //宽度固定为100，高度自适应
         const stampImageWidth = 100;
-        const stampImageHeight = stampImage.height / stampImage.width * stampImageWidth;
+        const stampImageHeight = stampImage['height'] / stampImage['width']* stampImageWidth;
         if (baseImages[i].fileDir != baseImages[i - 1]?.fileDir && i != 0) {
             currentXCount = 0;
             currentYCount += 1;
@@ -138,8 +138,8 @@ export async function draw(context: Context, baseImages: baseImage[], inputText:
         textBuffer = await drawTextWithoutCurve(context, inputText, drawTextOptions);
     }
     const textCanvas = (await context.canvas.loadImage(textBuffer))
-    const textCanvasWidth = textCanvas.width;
-    const textCanvasHeight = textCanvas.height;
+    const textCanvasWidth = textCanvas['width'];
+    const textCanvasHeight = textCanvas['height'];
 
     //根据position,rotate,将textCanvas绘制到canvas上,比如上方，最多占用textScreenShare比例，左右居中，不超出边界的情况下自适应缩放
     if (drawTextOptions.position === 'top' || drawTextOptions.position === 'bottom') {
