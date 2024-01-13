@@ -91,7 +91,7 @@ export function apply(context: Context, config: Config) {
       if (baseImageId === -1) {
         baseImageId = Random.int(0, baseImages.length - 1);
       }
-      const buffer = await draw(context, baseImages, '测试用文本\n测试用文本', baseImageId);
+      const buffer = await draw(context, baseImages, inputText, baseImageId);
       await session.send(h.image(buffer, 'image/png'));
     });
 
