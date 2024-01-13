@@ -91,14 +91,24 @@ export function apply(context: Context, config: Config) {
       if (baseImageId === -1) {
         baseImageId = Random.int(0, baseImages.length - 1);
       }
-      const buffer = await draw(context, baseImages, inputText, baseImageId);
+      const buffer = await draw(context, baseImages, '测试用文本\n测试用文本', baseImageId);
       await session.send(h.image(buffer, 'image/png'));
     });
 
-  context.command('pjsk.baseImageList', '绘制表情包可用底图列表').action(async ({ session }) => {
-    const buffer = await drawBaseImageList(context, baseImages);
-    await session.send(h.image(buffer, 'image/png'));
-  }
-
-  )
+  context.command('pjsk.baseImageList', '绘制表情包可用底图列表')
+    .alias('底图目录')
+    .action(async ({ session }) => {
+      //检查是否有缓存
+      if (fs.existsSync(path.join(pluginDataDir, 'baseImageList.png'))) {
+        await session.send(h.image(fs.readFileSync(path.join(pluginDataDir, 'baseImageList.png')), 'image/png'));
+        return;
+      }
+      else {
+        const buffer = await drawBaseImageList(context, baseImages);
+        fs.writeFileSync(path.join(pluginDataDir, 'baseImageList.png'), buffer)
+        await session.send(h.image(buffer, 'image/png'));
+        return;
+      }
+    }
+    )
 }
