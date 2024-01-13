@@ -195,16 +195,31 @@ export async function draw(context: Context, baseImages: baseImage[], inputText:
             const drawX = drawTextOptions.position === 'left' ? 0 : (canvasWidth - drawWidth);
             // 旋转角度转换为弧度
             const radians = drawTextOptions.rotate * Math.PI / 180;
-            if (drawTextOptions.rotate > 0) {
-                ctx.translate(drawX, 0);
-                ctx.rotate(radians);
-                ctx.drawImage(textCanvas, 0, 0, drawWidth, drawHeight);
+            if (drawTextOptions.position === 'left') {
+                if (drawTextOptions.rotate > 0) {
+                    ctx.translate(drawX, canvasHeight);
+                    ctx.rotate(radians);
+                    ctx.translate(0, -drawHeight);
+                    ctx.drawImage(textCanvas, 0, 0, drawWidth, drawHeight);
+                }
+                else {
+                    ctx.translate(drawX, 0);
+                    ctx.rotate(radians);
+                    ctx.drawImage(textCanvas, 0, 0, drawWidth, drawHeight);
+                }
             }
             else {
-                ctx.translate(drawX, canvasHeight);
-                ctx.rotate(radians);
-                ctx.translate(0, -drawHeight);
-                ctx.drawImage(textCanvas, 0, 0, drawWidth, drawHeight);
+                if (drawTextOptions.rotate > 0) {
+                    ctx.translate(drawX, 0);
+                    ctx.rotate(radians);
+                    ctx.drawImage(textCanvas, 0, 0, drawWidth, drawHeight);
+                }
+                else {
+                    ctx.translate(drawX, canvasHeight);
+                    ctx.rotate(radians);
+                    ctx.translate(0, -drawHeight);
+                    ctx.drawImage(textCanvas, 0, 0, drawWidth, drawHeight);
+                }
             }
         }
     }
