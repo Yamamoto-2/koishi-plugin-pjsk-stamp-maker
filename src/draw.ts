@@ -58,7 +58,7 @@ export async function drawBaseImageList(koishiContext: Context, baseImages: base
     //每一种fileDir为一行，计算出每一行的宽度，然后根据宽度和高度绘制
     let maxWidth = 0;
     let tempWidth = 0;
-    let fileDirCount = 0;
+    let fileDirCount = 1;
     for (let i = 0; i < baseImages.length; i++) {
         if (baseImages[i].fileDir != baseImages[i - 1]?.fileDir && i != 0) {
             fileDirCount++;
