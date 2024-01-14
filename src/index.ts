@@ -81,6 +81,10 @@ export function apply(context: Context, config: Config) {
     .example(`'Wonderhoi!.jpg' 或 'pjsk draw Wonderhoi!.jpg'`)
     .userFields(['pjskStampId'])
     .action(async ({ session }, inputText) => {
+      if(inputText === undefined){
+        session.send('参数输入无效。')
+        return
+      }
       //如果imputText包括'http'，则直接返回
       if (inputText.includes('http')) {
         return;
