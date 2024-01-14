@@ -4,9 +4,7 @@
   "version": "0.0.1",
   "contributors": [
     "Yamamoto-2 <1810972564qq@gmail.com>",
-    "starnightlodging <1843634955@qq.com>",
-    "小微 <1665757132@qq.com>",
-    "Nawyjx <3373167460@qq.com>"
+    "starnightlodging <1843634955@qq.com>"
   ],
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
