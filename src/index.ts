@@ -14,6 +14,7 @@ export const usage = `## 🎮 使用
 
 - 启动 \`canvas\` 服务：\`koishi-plugin-canvas\`（必须用这个喔）。
 - 在 \`Koishi\` 默认根目录下，安装 \`./data/pjsk/fonts\` 文件夹内的两个字体。
+- 启动插件，使用 \`pjsk.baseImageList\` 指令生成表情包 ID 列表。
 
 `
 
@@ -60,6 +61,7 @@ export function apply(context: Context, config: Config) {
   context.command('pjsk.baseImage [baseImageId:integer]', '切换表情包底图ID')
     .userFields(['pjskStampId'])
     .alias('底图')
+    .example(`'底图 52' 切换使用底52号底图绘制表情包\n底图列表请使用指令 '底图目录'或'底图列表'`)
     .action(async ({ session }, baseImageId) => {
       // 检查底图ID是否在有效范围内
       const isValidBaseImage = baseImageId >= -1 && baseImageId < baseImages.length;
@@ -72,10 +74,11 @@ export function apply(context: Context, config: Config) {
     })
 
   // 绘制图像密令
-  context.command('pjsk.draw [inputText:text]', '绘制表情包')
+  context.command('pjsk.draw <inputText:text>', '绘制表情包')
     .shortcut(/^([\s\S]+)\.jpg$/gm, { args: ['$1'] })
     .shortcut(/^([\s\S]+)\.jpeg$/gm, { args: ['$1'] })
     .shortcut(/^([\s\S]+)\.png$/gm, { args: ['$1'] })
+    .example(`'Wonderhoi!.jpg' 或 'pjsk draw Wonderhoi!.jpg'`)
     .userFields(['pjskStampId'])
     .action(async ({ session }, inputText) => {
       //如果imputText包括'http'，则直接返回
@@ -96,6 +99,7 @@ export function apply(context: Context, config: Config) {
 
   context.command('pjsk.baseImageList', '绘制表情包可用底图列表')
     .alias('底图目录')
+    .alias('底图列表')
     .action(async ({ session }) => {
       //检查是否有缓存
       if (fs.existsSync(path.join(pluginDataDir, 'baseImageList.png'))) {
