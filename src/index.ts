@@ -14,7 +14,6 @@ export const usage = `## 🎮 使用
 
 - 启动 \`canvas\` 服务：\`koishi-plugin-canvas\`（必须用这个喔）。
 - 在 \`Koishi\` 默认根目录下，安装 \`./data/pjsk/fonts\` 文件夹内的两个字体。
-- 启动插件，使用 \`pjsk.drawList\` 指令生成表情包 ID 列表。
 
 `
 
@@ -74,9 +73,9 @@ export function apply(context: Context, config: Config) {
 
   // 绘制图像密令
   context.command('pjsk.draw [inputText:text]', '绘制表情包')
-    .shortcut(/^(.+)\.jpg$/, { args: ['$1'] })
-    .shortcut(/^(.+)\.jpeg$/, { args: ['$1'] })
-    .shortcut(/^(.+)\.png$/, { args: ['$1'] })
+    .shortcut(/^([\s\S]+)\.jpg$/gm, { args: ['$1'] })
+    .shortcut(/^([\s\S]+)\.jpeg$/gm, { args: ['$1'] })
+    .shortcut(/^([\s\S]+)\.png$/gm, { args: ['$1'] })
     .userFields(['pjskStampId'])
     .action(async ({ session }, inputText) => {
       //如果imputText包括'http'，则直接返回
@@ -85,7 +84,7 @@ export function apply(context: Context, config: Config) {
       }
       //将inputText的'_'替换为' '
       inputText = inputText.replace(/_/g, ' ')
-
+      console.log(inputText)
       let baseImageId = session.user.pjskStampId
       // 如果是-1，则随机选择一个表情包
       if (baseImageId === -1) {
