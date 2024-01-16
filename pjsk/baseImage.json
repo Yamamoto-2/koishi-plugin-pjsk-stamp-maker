@@ -1541,7 +1541,7 @@
     },
     {
         "id": 220,
-        "color": "#33CCBB",
+        "color": "#B0ACB2",
         "fileName": "Miku_16.png",
         "fileDir": "Miku",
         "defaultStyleId": 10
@@ -2545,6 +2545,69 @@
         "color": "#FFBB00",
         "fileName": "Tsukasa_18.png",
         "fileDir": "Tsukasa",
+        "defaultStyleId": 10
+    },
+    {
+        "id": 364,
+        "color": "#CCAA88",
+        "fileName": "Ena_20.png",
+        "fileDir": "ena",
+        "defaultStyleId": 5
+    },
+    {
+        "id": 365,
+        "color": "#CCAA88",
+        "fileName": "Ena_21.png",
+        "fileDir": "ena",
+        "defaultStyleId": 10
+    },
+    {
+        "id": 366,
+        "color": "#FB8AAC",
+        "fileName": "Airi_24.png",
+        "fileDir": "ena",
+        "defaultStyleId": 7
+    },
+    {
+        "id": 367,
+        "color": "#EE6666",
+        "fileName": "Honami_19.png",
+        "fileDir": "ena",
+        "defaultStyleId": 1
+    },
+    {
+        "id": 368,
+        "color": "#3366CC",
+        "fileName": "KAITO_17.png",
+        "fileDir": "KAITO",
+        "defaultStyleId": 6
+    },
+    {
+        "id": 369,
+        "color": "#3366CC",
+        "fileName": "KAITO_18.png",
+        "fileDir": "KAITO",
+        "defaultStyleId": 9
+    },
+    {
+        "id": 370,
+        "color": "#3366CC",
+        "fileName": "KAITO_19.png",
+        "fileDir": "KAITO",
+        "defaultStyleId": 10
+    },
+    {
+        "id": 371,
+        "color": "#BB6688",
+        "fileName": "Kanade_18.png",
+        "fileDir": "Kanade",
+        "defaultStyleId": 10
+    },
+    {
+        "id": 372,
+        "color": "#FF6699",
+        "fileName": "Kohane_18.png",
+        "fileDir": "Kohane",
         "defaultStyleId": 10
     }
 ]
